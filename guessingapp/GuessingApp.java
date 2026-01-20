@@ -76,6 +76,41 @@ class GuessValidator {
     }
 }
 
+/*
+ * Use Case 3: Hint Generation
+ *
+ * This class is responsible for generating
+ * controlled hints based on the number of
+ * incorrect attempts made by the player.
+ *
+ * Hint logic is isolated to avoid cluttering
+ * the main game flow.
+ */
+class HintService {
+
+    /*
+     * Generates a hint based on how many hints
+     * have already been used.
+     *
+     * Hints provide partial information without
+     * revealing the exact number.
+     */
+    public static String generateHint(int target, int hintCount) {
+
+        if (hintCount == 1) {
+            return (target % 2 == 0)
+                    ? "Hint: Number is EVEN"
+                    : "Hint: Number is ODD";
+        } else if (hintCount == 2) {
+            return (target > 50)
+                    ? "Hint: Number is greater than 50"
+                    : "Hint: Number is 50 or less";
+        }
+
+        return "No more hints available";
+    }
+}
+
 /**
  * MAIN CLASS
  *
@@ -86,7 +121,7 @@ class GuessValidator {
  * 4. Stop when game ends
  *
  * @author Developer
- * @version 2.0
+ * @version 3.0
  */
 public class GuessingApp {
 
@@ -99,6 +134,7 @@ public class GuessingApp {
 
         Scanner scanner = new Scanner(System.in);
         int attempts = 0;
+        int hintsUsed = 0;
 
         /*
          * Game loop runs until the player
@@ -112,6 +148,18 @@ public class GuessingApp {
 
             String result = GuessValidator.validateGuess(
                     guess, config.getTargetNumber());
+
+            /*
+             * A hint is generated only after
+             * an incorrect guess and within
+             * the allowed hint limit.
+             */
+            if (!"CORRECT".equals(result) && hintsUsed < config.getMaxHints()) {
+                hintsUsed++;
+                System.out.println(
+                        HintService.generateHint(config.getTargetNumber(), hintsUsed)
+                );
+            }
 
             System.out.println(result);
 
